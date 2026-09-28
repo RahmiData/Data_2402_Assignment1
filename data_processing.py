@@ -23,8 +23,8 @@ def print_stats(data: list[dict]) -> None:
                 data_count += 1
                 
                 # Task 3: Calculate and print AFTER the loop finishes
-                average = data_sum / data_count
-                print(f"average value for {column}: {average:.1f}")
+            average = data_sum / data_count
+            print(f"average value for {column}: {average:.1f}")
                 
         else:  # this is a text column
             
