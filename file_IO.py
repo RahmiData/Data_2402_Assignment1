@@ -103,3 +103,67 @@ def load_from_csv(filename: str) -> list[dict]:
   return all_rows
 
 
+
+
+def load_dataset(filename: str) -> list[dict]:
+    """
+    Identifies if a dataset is CSV or HTML format and parses it accordingly.
+    Raises an Exception if the file is neither or cannot be parsed.
+    """
+    # Quick probe: read the beginning of the file to inspect the format
+    try:
+        with open(filename, 'r') as file:
+            preview = file.read(500).strip().lower()
+    except Exception as e:
+        raise Exception("Error, data must be in valid CSV or HTML format") from e
+
+    # Check for HTML signature
+    if '<table' in preview:
+        try:
+            return load_from_html(filename)
+        except Exception as e:
+            raise Exception("Error, data must be in valid CSV or HTML format") from e
+
+    # Check if it behaves as a valid CSV (try loading via load_from_csv)
+    # Exclude files known not to be CSV (like ARFF headers starting with '@')
+    if not preview.startswith('@'):
+        try:
+            return load_from_csv(filename)
+        except Exception:
+            pass
+
+    # If parsing as both HTML and CSV fails
+    raise Exception("Error, data must be in valid CSV or HTML format")
+
+
+
+
+def save_to_json(data: list[dict], filename: str) -> None:
+    """
+    Saves a dataset (list of dictionaries) into a JSON formatted file.
+    Does not use any external libraries.
+    """
+    json_rows = []
+
+    for row in data:
+        row_pairs = []
+        for key, val in row.items():
+            # Format string values with quotes, numbers without quotes
+            if isinstance(val, str):
+                formatted_val = f'"{val}"'
+            elif isinstance(val, (int, float)):
+                formatted_val = str(val)
+            else:
+                formatted_val = f'"{str(val)}"'
+
+            row_pairs.append(f'"{key}": {formatted_val}')
+
+        # Combine into an object string: {"k1": v1, "k2": v2}
+        row_string = "{" + ", ".join(row_pairs) + "}"
+        json_rows.append(row_string)
+
+    # Wrap the full array: [ {...}, {...} ]
+    full_json_str = "[\n  " + ",\n  ".join(json_rows) + "\n]"
+
+    with open(filename, 'w') as file:
+        file.write(full_json_str)
