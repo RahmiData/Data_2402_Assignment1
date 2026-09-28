@@ -55,6 +55,51 @@ def load_from_html(filename: str) -> list[dict]:
     
     return all_rows
 
+def load_from_csv(filename: str) -> list[dict]:
+  """Reads a tabular dataset in CSV format without external libraries.
 
+  Converts numeric values to float where possible.
+  """
+  all_rows = []
+
+  with open(filename, 'r') as file:
+    lines = file.readlines()
+
+    # If the file is completely empty, return empty list
+    if not lines:
+      return all_rows
+
+    # Extract header columns from the first line
+    header_line = lines[0].strip()
+    columns = [col.strip() for col in header_line.split(',')]
+
+    # Process each data row
+    for line in lines[1:]:
+      line = line.strip()
+      if not line:
+        continue  # skip blank lines
+
+      values = [val.strip() for val in line.split(',')]
+
+      # Check for row value alignment with headers
+      if len(values) != len(columns):
+        raise AttributeError(f'wrong number of values in row: {line}')
+
+      row_dict = {}
+      for i in range(len(columns)):
+        col_name = columns[i]
+        val = values[i]
+
+        # Convert to float if numeric
+        try:
+          val = float(val)
+        except ValueError:
+          pass
+
+        row_dict[col_name] = val
+
+      all_rows.append(row_dict)
+
+  return all_rows
 
 

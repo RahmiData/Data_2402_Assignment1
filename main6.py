@@ -1,15 +1,10 @@
-from file_IO import load_from_html
 from data_processing import print_stats
-# 1. Test the normal HTML loading
-print("=== Testing student_dataset.txt ===")
-table = load_from_html("student_dataset.txt")
-print_stats(table)
+from file_IO import load_from_csv
 
-# 2. Test the corrupted HTML loading
-print("\n=== Testing student_dataset_corrupted.txt ===")
-try:
-    corrupted_table = load_from_html("student_dataset_corrupted.txt")
-except AttributeError as e:
-    print("Successfully caught expected AttributeError:")
-    print(e)
+# Test CSV loading on the massive census file
+print("=== Loading census_dataset.txt ===")
+census_data = load_from_csv("census_dataset.txt")
 
+print(f"Successfully loaded {len(census_data)} rows!")
+print("\n=== Census Statistics ===")
+print_stats(census_data)
